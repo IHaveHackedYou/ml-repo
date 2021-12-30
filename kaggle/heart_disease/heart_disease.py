@@ -5,6 +5,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 
 heart = pd.read_csv("heart.csv")
 # display in pd functions all columns
@@ -40,12 +41,10 @@ heart_prepared.hist(bins=100, figsize=(20, 15))
 heart_prepared = heart_prepared.sample(frac=1).reset_index(drop=True)
 
 # split data in train and test set
-X_train, X_test, y_train, y_test = train_test_split(heart_prepared, heart_labels, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(heart_prepared, heart_labels, test_size=0.1)
 
-lin_reg = LinearRegression()
+lin_reg = DecisionTreeRegressor()
 lin_reg.fit(X_train, y_train)
-
-
 lin_predictions = lin_reg.predict(X_test)
 lin_mse = mean_squared_error(y_test, lin_predictions)
 lin_rmse = np.sqrt(lin_mse)
@@ -57,6 +56,3 @@ def prepare_predict(data, model):
     standard_scaler = StandardScaler()
     data_prepared = standard_scaler.fit_transform(data_encoded)
     return model.predict(data_prepared)
-
-
-
