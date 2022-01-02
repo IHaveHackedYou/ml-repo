@@ -21,11 +21,16 @@ def import_data():
     X.to_csv("X.csv", index=False)
 
 
+def show_image(X, y=None):
+    if not y is None:
+        print("image should be: ", y)
+    digit_image = X.reshape(28, 28)
+    plt.imshow(digit_image, cmap="binary")
+    plt.axis("off")
+    plt.show()
+
+
 # import_data()
-X = pd.DataFrame(pd.read_csv("X.csv"))
-y = pd.DataFrame(pd.read_csv("y.csv"))
-
-
 X = pd.read_csv("X.csv")
 y = pd.read_csv("y.csv")
 
@@ -33,16 +38,19 @@ y = pd.read_csv("y.csv")
 y = y.astype(np.uint8)
 
 # split train test split
-X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
+X_train, X_test, y_train, y_test = X[:6000], X[6000:], y[:6000], y[6000:]
 
 # if 5 is true else it is false
 y_train_5 = (y_train == 5)
 y_test_5 = (y_test == 5)
 
-some_digit = X.iloc[0]
+some_digit = X.values[0]
+# show_image(some_digit, y.values[0])
+
 # Stochastic Gradient Descent
 sgd_clf = SGDClassifier(random_state=42)
-sgd_clf.fit(X_train, y_train_5)
+
+sgd_clf.fit(X_train, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
 
 
 def cross_validation(model, X_train, y_train):
@@ -57,7 +65,6 @@ def cross_validation(model, X_train, y_train):
         y_pred = model.predict(X_test_fold)
         n_correct = sum(y_pred == y_test_fold)
         print(n_correct / len(y_pred))
-
 
 cross_validation(sgd_clf, X_train, y_train_5)
 
