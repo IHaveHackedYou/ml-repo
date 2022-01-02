@@ -1,19 +1,30 @@
 import numpy as np
 import pandas as pd
+import MLLib as ml
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import StratifiedKFold
 from sklearn.base import clone
-
-# mnist handwritten digits dataset, content:
-# ['data', 'target', 'frame', 'categories', 'feature_names', 'target_names', 'DESCR', 'details', 'url']
-# mnist = fetch_openml("mnist_784", version=1)
-
-# X, y = mnist["data"], mnist["target"]
-# X.to_csv("X.csv", index=False)
-# y.to_csv("y.csv", index=False)
 from sklearn.linear_model import SGDClassifier
+
+
+def import_data():
+    # mnist handwritten digits dataset, content:
+    # ['data', 'target', 'frame', 'categories', 'feature_names', 'target_names', 'DESCR', 'details', 'url']
+    mnist = fetch_openml("mnist_784", version=1)
+    X, y = mnist["data"], mnist["target"]
+    X["target"] = y
+    X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.9)
+    X["target"].to_csv("y.csv", index=False)
+    X = X.drop("target", axis=1)
+    X.to_csv("X.csv", index=False)
+
+
+# import_data()
+X = pd.DataFrame(pd.read_csv("X.csv"))
+y = pd.DataFrame(pd.read_csv("y.csv"))
+
 
 X = pd.read_csv("X.csv")
 y = pd.read_csv("y.csv")
@@ -49,3 +60,4 @@ def cross_validation(model, X_train, y_train):
 
 
 cross_validation(sgd_clf, X_train, y_train_5)
+
