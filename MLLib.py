@@ -68,7 +68,7 @@ class Model_Rating():
     def plot_confusion_matrix(y, y_predicted):
         print_array = confusion_matrix(y, y_predicted)
         print_df = pd.DataFrame(print_array, index=["Positive", "Negative"], columns=["Positive", "Negative"])
-        ax = plt.figure(figsize=(10, 7))
+        fig = plt.figure(figsize=(10, 7))
         sn.heatmap(print_df, annot=True)
         plt.title("Confusion Matrix")
         plt.xlabel("Real Class")
@@ -79,6 +79,18 @@ class Model_Rating():
     def plot_precision_recall_vs_threshold(model, X, y):
         y_scores = cross_val_predict(model, X, y, cv=3, method="decision_function")
         precisions, recalls, thresholds = precision_recall_curve(y, y_scores)
-        plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
-        plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
 
+        fig = plt.figure(figsize=(5, 4))
+        # Adds axes with a left, bottom, width and height that ranges from 0 to 1
+        # which is the percent of the canvas you want to use
+        axes_1 = fig.add_axes([0.1, 0.1, 0.9, 0.9])
+        axes_1.set_xlabel("Threshold", color="red")
+        axes_1.set_title("Precision vs. Recall")
+        axes_1.plot(thresholds, precisions[:-1], "b--", label="Precision")
+        axes_1.plot(thresholds, recalls[:-1], "g-", label="Recall")
+        axes_1.legend(loc=0)
+        axes_1.grid(True)
+        # plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+        # plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
+        # plt.xlabel("Threshold")
+        plt.show()
