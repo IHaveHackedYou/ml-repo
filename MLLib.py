@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score
+from sklearn.metrics import confusion_matrix, precision_recall_curve
+from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -74,4 +74,11 @@ class Model_Rating():
         plt.xlabel("Real Class")
         plt.ylabel("Predicted Class")
         plt.show()
+
+    @staticmethod
+    def plot_precision_recall_vs_threshold(model, X, y):
+        y_scores = cross_val_predict(model, X, y, cv=3, method="decision_function")
+        precisions, recalls, thresholds = precision_recall_curve(y, y_scores)
+        plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+        plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
 

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, precision_recall_curve
 
 import MLLib
 import MLLib as ml
@@ -66,13 +66,24 @@ some_digit = X.values[0]
 
 # Stochastic Gradient Descent
 sgd_clf = SGDClassifier(random_state=42)
-sgd_clf.fit(X_train, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
+sgd_clf.fit(X_train.values, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
 
 # cross_validation(sgd_clf, X_train.values, y_train_5.values.ravel())
 # MLLib.Model_Rating.cross_validation(sgd_clf, X_test, y_test_5.values.ravel())
 
-y_train_pred = cross_val_predict(sgd_clf, X_train, y_train_5.values.ravel(), cv=3)
+y_train_pred = cross_val_predict(sgd_clf, X_train.values, y_train_5.values.ravel(), cv=3)
 # MLLib.Model_Rating.plot_confusion_matrix(y_train_5.values.ravel(), y_train_pred)
 
-precision = precision_score(y_train_5, y_train_pred), recall_score(y_train_5, y_train_pred)
-print(precision)
+# precs_recall_scores = precision_score(y_train_5, y_train_pred), recall_score(y_train_5, y_train_pred)
+y_scores = cross_val_predict(sgd_clf, X_train.values, y_train_5.values.ravel(), cv=3, method="decision_function")
+
+precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_scores)
+
+
+def plot_precision_recall_vs_threshold(precisions, recalls, thresholds):
+    plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+    plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
+
+
+plot_precision_recall_vs_threshold(precisions, recalls, thresholds)
+plt.show()
