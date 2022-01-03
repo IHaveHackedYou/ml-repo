@@ -1,8 +1,11 @@
 import pandas as pd
+import seaborn as sn
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -50,3 +53,25 @@ class MLPrepare:
             ("std_scaler", StandardScaler()),  # equal deviations and set values to a range from -2 to 2 (approx.)
         ])
         return pipeline.fit_transform(X)
+
+
+class Model_Rating():
+
+    # evaluate model on different subsets
+    @staticmethod
+    def cross_validation(model, X_test, y_test):
+        scores = cross_val_score(model, X_test, y_test, cv=3, scoring="accuracy")
+        print(scores)
+        return scores
+
+    @staticmethod
+    def plot_confusion_matrix(y, y_predicted):
+        print_array = confusion_matrix(y, y_predicted)
+        print_df = pd.DataFrame(print_array, index=["Positive", "Negative"], columns=["Positive", "Negative"])
+        ax = plt.figure(figsize=(10, 7))
+        sn.heatmap(print_df, annot=True)
+        plt.title("Confusion Matrix")
+        plt.xlabel("Real Class")
+        plt.ylabel("Predicted Class")
+        plt.show()
+
