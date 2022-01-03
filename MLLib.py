@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import confusion_matrix, precision_recall_curve
+from sklearn.metrics import confusion_matrix, precision_recall_curve, roc_curve
 from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -26,6 +26,7 @@ class DataFrameExplorer:
             plt.show()
 
     # need pandas DataFrame and String
+    # prints correlations between columns
     @staticmethod
     def correlations(data, column_to_compare):
         corr_matrix = data.corr()
@@ -64,6 +65,9 @@ class Model_Rating():
         print(scores)
         return scores
 
+
+    # confusion matrix shows correlations between true positive, false positive etc.
+    # the column in the upper left (true positive) and lower right (true negative) should be the highest
     @staticmethod
     def plot_confusion_matrix(y, y_predicted):
         print_array = confusion_matrix(y, y_predicted)
@@ -90,7 +94,20 @@ class Model_Rating():
         axes_1.plot(thresholds, recalls[:-1], "g-", label="Recall")
         axes_1.legend(loc=0)
         axes_1.grid(True)
-        # plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
-        # plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
-        # plt.xlabel("Threshold")
+        plt.show()
+
+    @staticmethod
+    def plot_roc_curve(model, X, y, y_scores=None):
+        if y_scores is None:
+            y_scores = cross_val_predict(model, X, y, cv=3, method="decision_function")
+        false_positive_rate, true_positive_rate, thresholds = roc_curve(y, y_scores)
+        fig = plt.figure(figsize=(5, 4))
+        axes_1 = fig.add_axes([0.1, 0.1, 0.9, 0.9])
+        # plot roc curve
+        axes_1.plot(false_positive_rate, true_positive_rate, linewidth=2)
+        # plot diagonal
+        axes_1.plot([0, 1], [0, 1], "k--")
+        axes_1.set_xlabel("False Positive Rate")
+        axes_1.set_ylabel("True Positive Rate")
+        axes_1.grid(True)
         plt.show()

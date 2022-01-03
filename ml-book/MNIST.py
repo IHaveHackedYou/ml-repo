@@ -18,7 +18,7 @@ def import_data():
     mnist = fetch_openml("mnist_784", version=1)
     X, y = mnist["data"], mnist["target"]
     X["target"] = y
-    X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.0)
+    X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.9)
     X["target"].to_csv("y.csv", index=False)
     X = X.drop("target", axis=1)
     X.to_csv("X.csv", index=False)
@@ -56,7 +56,7 @@ y = pd.read_csv("y.csv")
 y = y.astype(np.uint8)
 
 # split train test split
-X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
+X_train, X_test, y_train, y_test = X[:6000], X[6000:], y[:6000], y[6000:]
 # if 5 is true else it is false
 y_train_5 = (y_train == 5)
 y_test_5 = (y_test == 5)
@@ -76,4 +76,5 @@ y_train_pred = cross_val_predict(sgd_clf, X_train.values, y_train_5.values.ravel
 
 # precs_recall_scores = precision_score(y_train_5, y_train_pred), recall_score(y_train_5, y_train_pred)
 
-MLLib.Model_Rating.plot_precision_recall_vs_threshold(sgd_clf, X_train.values, y_train_5.values.ravel())
+# MLLib.Model_Rating.plot_precision_recall_vs_threshold(sgd_clf, X_train.values, y_train_5.values.ravel())
+MLLib.Model_Rating.plot_roc_curve(sgd_clf, X_train.values, y_train_5.values.ravel())
