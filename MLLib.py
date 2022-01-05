@@ -69,9 +69,13 @@ class Model_Rating():
     # confusion matrix shows correlations between true positive, false positive etc.
     # the column in the upper left (true positive) and lower right (true negative) should be the highest
     @staticmethod
-    def plot_confusion_matrix(y, y_predicted):
-        print_array = confusion_matrix(y, y_predicted)
-        print_df = pd.DataFrame(print_array, index=["Positive", "Negative"], columns=["Positive", "Negative"])
+    def plot_confusion_matrix(model, X, y, set_diagonal_zero=False):
+        y_predicted = cross_val_predict(model, X, y, cv=3)
+        conf_mx = confusion_matrix(y, y_predicted)
+        row_sums = conf_mx.sum(axis=1, keepdims=True)
+        norm_conf_mx = conf_mx / row_sums
+        np.fill_diagonal(norm_conf_mx, 0)
+        print_df = pd.DataFrame(norm_conf_mx)
         fig = plt.figure(figsize=(10, 7))
         sn.heatmap(print_df, annot=True)
         plt.title("Confusion Matrix")

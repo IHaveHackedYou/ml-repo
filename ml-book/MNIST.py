@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, precision_recall_curve
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import SVC
 
 import MLLib
 import MLLib as ml
@@ -18,7 +20,7 @@ def import_data():
     mnist = fetch_openml("mnist_784", version=1)
     X, y = mnist["data"], mnist["target"]
     X["target"] = y
-    X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.9)
+    X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.95)
     X["target"].to_csv("y.csv", index=False)
     X = X.drop("target", axis=1)
     X.to_csv("X.csv", index=False)
@@ -48,7 +50,7 @@ def cross_validation(model, X_train, y_train):
         print(n_correct / len(y_pred))
 
 
-import_data()
+# import_data()
 X = pd.read_csv("X.csv")
 y = pd.read_csv("y.csv")
 
@@ -66,15 +68,27 @@ some_digit = X.values[0]
 
 # Stochastic Gradient Descent
 sgd_clf = SGDClassifier(random_state=42)
-sgd_clf.fit(X_train.values, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
+# sgd_clf.fit(X_train.values, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
 
 # cross_validation(sgd_clf, X_train.values, y_train_5.values.ravel())
 # MLLib.Model_Rating.cross_validation(sgd_clf, X_test, y_test_5.values.ravel())
 
-y_train_pred = cross_val_predict(sgd_clf, X_train.values, y_train_5.values.ravel(), cv=3)
+# y_train_pred = cross_val_predict(sgd_clf, X_train.values, y_train_5.values.ravel(), cv=3)
 # MLLib.Model_Rating.plot_confusion_matrix(y_train_5.values.ravel(), y_train_pred)
 
 # precs_recall_scores = precision_score(y_train_5, y_train_pred), recall_score(y_train_5, y_train_pred)
 
 # MLLib.Model_Rating.plot_precision_recall_vs_threshold(sgd_clf, X_train.values, y_train_5.values.ravel())
-MLLib.Model_Rating.plot_roc_curve(sgd_clf, X_train.values, y_train_5.values.ravel())
+# MLLib.Model_Rating.plot_roc_curve(sgd_clf, X_train.values, y_train_5.values.ravel())
+
+svm_clf = SVC()
+# svm_clf.fit(X_train.values, y_train.values.ravel())  # uses One versus One
+# some_digit_scores = svm_clf.decision_function([some_digit]) # different scores for each class (0-9)
+ovr_clf = OneVsRestClassifier(SVC())  # uses One versus All
+# ovr_clf.fit(X_train.values, y_train.values.ravel())
+
+# print(sgd_clf.decision_function([some_digit]))
+X_train = MLLib.MLPrepare.feature_scaling(X_train)
+sgd_clf.fit(X_train, y_train.values.ravel())
+# print(cross_val_score(sgd_clf, X_train, y_train.values.ravel(), cv=3, scoring="accuracy"))
+MLLib.Model_Rating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
