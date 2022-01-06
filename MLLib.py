@@ -8,6 +8,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_curve, roc_curve
 from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from PIL import Image
 
 
 class DataFrameExplorer:
@@ -56,7 +57,7 @@ class MLPrepare:
         return pipeline.fit_transform(X)
 
 
-class Model_Rating():
+class ModelRating():
 
     # evaluate model on different subsets
     @staticmethod
@@ -115,3 +116,11 @@ class Model_Rating():
         axes_1.set_ylabel("True Positive Rate")
         axes_1.grid(True)
         plt.show()
+
+
+class ImageConverter():
+    @staticmethod
+    def flat_image(img):
+        img_arr = np.array(img)
+        flat_img = img_arr.ravel()
+        return flat_img

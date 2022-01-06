@@ -12,6 +12,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
+from PIL import Image
 
 
 def import_data():
@@ -81,14 +82,20 @@ sgd_clf = SGDClassifier(random_state=42)
 # MLLib.Model_Rating.plot_precision_recall_vs_threshold(sgd_clf, X_train.values, y_train_5.values.ravel())
 # MLLib.Model_Rating.plot_roc_curve(sgd_clf, X_train.values, y_train_5.values.ravel())
 
-svm_clf = SVC()
+# svm_clf = SVC()
 # svm_clf.fit(X_train.values, y_train.values.ravel())  # uses One versus One
 # some_digit_scores = svm_clf.decision_function([some_digit]) # different scores for each class (0-9)
-ovr_clf = OneVsRestClassifier(SVC())  # uses One versus All
+# ovr_clf = OneVsRestClassifier(SVC())  # uses One versus All
 # ovr_clf.fit(X_train.values, y_train.values.ravel())
 
 # print(sgd_clf.decision_function([some_digit]))
 X_train = MLLib.MLPrepare.feature_scaling(X_train)
 sgd_clf.fit(X_train, y_train.values.ravel())
 # print(cross_val_score(sgd_clf, X_train, y_train.values.ravel(), cv=3, scoring="accuracy"))
-MLLib.Model_Rating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
+# MLLib.ModelRating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
+img = Image.open("6.png").convert("L")
+test_digit = MLLib.ImageConverter.flat_image(img)
+img_array = np.array(img)
+# print(some_digit)
+# print(test_digit.astype(float))
+print(sgd_clf.predict([test_digit]))
