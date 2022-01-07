@@ -73,10 +73,11 @@ class ModelRating():
     def plot_confusion_matrix(model, X, y, set_diagonal_zero=False):
         y_predicted = cross_val_predict(model, X, y, cv=3)
         conf_mx = confusion_matrix(y, y_predicted)
-        row_sums = conf_mx.sum(axis=1, keepdims=True)
-        norm_conf_mx = conf_mx / row_sums
-        np.fill_diagonal(norm_conf_mx, 0)
-        print_df = pd.DataFrame(norm_conf_mx)
+        if set_diagonal_zero:
+            row_sums = conf_mx.sum(axis=1, keepdims=True)
+            conf_mx = conf_mx / row_sums
+            np.fill_diagonal(conf_mx, 0)
+        print_df = pd.DataFrame(conf_mx)
         fig = plt.figure(figsize=(10, 7))
         sn.heatmap(print_df, annot=True)
         plt.title("Confusion Matrix")
@@ -118,9 +119,15 @@ class ModelRating():
         plt.show()
 
 
-class ImageConverter():
+class Image():
     @staticmethod
     def flat_image(img):
         img_arr = np.array(img)
         flat_img = img_arr.ravel()
         return flat_img
+
+    @staticmethod
+    def plot_image(img):
+        plt.imshow(img)
+        plt.colorbar()
+        plt.show()

@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, precision_recall_curve
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, precision_recall_curve, f1_score, \
+    classification_report
 from sklearn.multiclass import OneVsRestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
 import MLLib
@@ -9,7 +11,7 @@ import MLLib as ml
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_openml
-from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict, GridSearchCV
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 from PIL import Image
@@ -51,7 +53,7 @@ def cross_validation(model, X_train, y_train):
         print(n_correct / len(y_pred))
 
 
-# import_data()
+import_data()
 X = pd.read_csv("X.csv")
 y = pd.read_csv("y.csv")
 
@@ -59,16 +61,16 @@ y = pd.read_csv("y.csv")
 y = y.astype(np.uint8)
 
 # split train test split
-X_train, X_test, y_train, y_test = X[:6000], X[6000:], y[:6000], y[6000:]
+X_train, X_test, y_train, y_test = X[:3000], X[3000:], y[:3000], y[3000:]
 # if 5 is true else it is false
-y_train_5 = (y_train == 5)
-y_test_5 = (y_test == 5)
+# y_train_5 = (y_train == 5)
+# y_test_5 = (y_test == 5)
 
-some_digit = X.values[0]
+# some_digit = X.values[0]
 # show_image(some_digit, y.values[0])
 
 # Stochastic Gradient Descent
-sgd_clf = SGDClassifier(random_state=42)
+# sgd_clf = SGDClassifier(random_state=42)
 # sgd_clf.fit(X_train.values, y_train_5.values.ravel())  # converts x * 1 dataFrame to 1d array
 
 # cross_validation(sgd_clf, X_train.values, y_train_5.values.ravel())
@@ -89,13 +91,28 @@ sgd_clf = SGDClassifier(random_state=42)
 # ovr_clf.fit(X_train.values, y_train.values.ravel())
 
 # print(sgd_clf.decision_function([some_digit]))
-X_train = MLLib.MLPrepare.feature_scaling(X_train)
-sgd_clf.fit(X_train, y_train.values.ravel())
-# print(cross_val_score(sgd_clf, X_train, y_train.values.ravel(), cv=3, scoring="accuracy"))
-# MLLib.ModelRating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
-img = Image.open("6.png").convert("L")
-test_digit = MLLib.ImageConverter.flat_image(img)
-img_array = np.array(img)
-# print(some_digit)
-# print(test_digit.astype(float))
-print(sgd_clf.predict([test_digit]))
+# X_train = MLLib.MLPrepare.feature_scaling(X_train)
+# sgd_clf.fit(X_train, y_train.values.ravel())
+# # print(cross_val_score(sgd_clf, X_train, y_train.values.ravel(), cv=3, scoring="accuracy"))
+# # MLLib.ModelRating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
+# img = Image.open("6.png").convert("L")
+# test_digit = MLLib.Image.flat_image(img)
+# img_array = np.array(img)
+# # print(some_digit)
+# # print(test_digit.astype(float))
+# print(sgd_clf.predict([test_digit]))
+
+knn_clf = KNeighborsClassifier(weights="distance", algorithm="auto", leaf_size=30, metric="minkowski", n_neighbors=5, p=1)
+knn_clf.fit(X_train, y_train.values.ravel())
+# MLLib.ModelRating.plot_confusion_matrix(knn_clf, X_train, y_train.values.ravel())
+# MLLib.ModelRating.cross_validation(knn_clf, X_train, y_train.values.ravel())
+# param_grid = [
+#     {"n_neighbors": [4, 5, 7, 10, 12, 15, 20]},
+#     {"leaf_size": [2, 4, 6, 8, 10, 15, 20, 25, 30, 35, 40, 45, 50]},
+#     {"p": [1, 2]}
+# ]
+# grid_search = GridSearchCV(knn_clf, param_grid, cv=5, scoring="neg_mean_squared_error", return_train_score=True)
+# grid_search.fit(X_train, y_train.values.ravel())
+# print(grid_search.best_estimator_.get_params())
+y_pred = knn_clf.predict(X_test.values)
+print(classification_report(y_test.values.ravel(), y_pred))
