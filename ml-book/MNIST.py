@@ -24,9 +24,23 @@ def import_data():
     X, y = mnist["data"], mnist["target"]
     X["target"] = y
     X, X_bin = ml.MLPrepare.split_data(X, y, test_size=0.95)
-    X["target"].to_csv("y.csv", index=False)
+    y = X["target"]
     X = X.drop("target", axis=1)
     X.to_csv("X.csv", index=False)
+    y.to_csv("y.csv", index=False)
+
+
+def add_samples(X, y):
+    for i in range(len(X)):
+        X = np.append(X, [shift_image(X[i], (0, 1))], axis=0)
+        y = np.append(y, [y[i]])
+        X = np.append(X, [shift_image(X[i], (1, 0))], axis=0)
+        y = np.append(y, [y[i]])
+        X = np.append(X, [shift_image(X[i], (0, -1))], axis=0)
+        y = np.append(y, [y[i]])
+        X = np.append(X, [shift_image(X[i], (-1, 0))], axis=0)
+        y = np.append(y, [y[i]])
+    return X, y
 
 
 def show_image(X, y=None):
@@ -53,20 +67,38 @@ def cross_validation(model, X_train, y_train):
         print(n_correct / len(y_pred))
 
 
+def shift_image(img_arr, shift):
+    img_shift = np.roll(img_arr, shift)
+    return img_shift
+
+
 import_data()
 X = pd.read_csv("X.csv")
 y = pd.read_csv("y.csv")
-
+# X, y = add_samples(X.values, y.values)
+# pd.DataFrame(X).to_csv("X.csv", index=False)
+# pd.DataFrame(y).to_csv("y.csv", index=False)
+# X = pd.read_csv("X.csv")
+# y = pd.read_csv("y.csv")
+# print(X.shape, y.shape)
 # convert y strings to integers
 y = y.astype(np.uint8)
 
 # split train test split
-X_train, X_test, y_train, y_test = X[:3000], X[3000:], y[:3000], y[3000:]
+X_train, X_test, y_train, y_test = X.values[:3000], X.values[3000:], y.values[:3000], y.values[3000:]
+# X_train, y_train = add_samples(X_train, y_train)
+
+# X["target"] = y
+# X_train, X_test = ml.MLPrepare.split_data(X, X["target"])
+# y_train = X_train["target"].values
+# y_test = X_test["target"].values
+# X_train = X_train.drop("target", axis=1).values
+# X_test = X_test.drop("target", axis=1).values
 # if 5 is true else it is false
 # y_train_5 = (y_train == 5)
 # y_test_5 = (y_test == 5)
 
-# some_digit = X.values[0]
+some_digit = X_train[0]
 # show_image(some_digit, y.values[0])
 
 # Stochastic Gradient Descent
@@ -91,7 +123,6 @@ X_train, X_test, y_train, y_test = X[:3000], X[3000:], y[:3000], y[3000:]
 # ovr_clf.fit(X_train.values, y_train.values.ravel())
 
 # print(sgd_clf.decision_function([some_digit]))
-# X_train = MLLib.MLPrepare.feature_scaling(X_train)
 # sgd_clf.fit(X_train, y_train.values.ravel())
 # # print(cross_val_score(sgd_clf, X_train, y_train.values.ravel(), cv=3, scoring="accuracy"))
 # # MLLib.ModelRating.plot_confusion_matrix(sgd_clf, X_train, y_train.values.ravel())
@@ -102,8 +133,9 @@ X_train, X_test, y_train, y_test = X[:3000], X[3000:], y[:3000], y[3000:]
 # # print(test_digit.astype(float))
 # print(sgd_clf.predict([test_digit]))
 
-knn_clf = KNeighborsClassifier(weights="distance", algorithm="auto", leaf_size=30, metric="minkowski", n_neighbors=5, p=1)
-knn_clf.fit(X_train, y_train.values.ravel())
+knn_clf = KNeighborsClassifier(weights="distance", algorithm="auto", leaf_size=30, metric="minkowski", n_neighbors=4,
+                               p=1)
+knn_clf.fit(X_train, y_train.ravel())
 # MLLib.ModelRating.plot_confusion_matrix(knn_clf, X_train, y_train.values.ravel())
 # MLLib.ModelRating.cross_validation(knn_clf, X_train, y_train.values.ravel())
 # param_grid = [
@@ -114,5 +146,7 @@ knn_clf.fit(X_train, y_train.values.ravel())
 # grid_search = GridSearchCV(knn_clf, param_grid, cv=5, scoring="neg_mean_squared_error", return_train_score=True)
 # grid_search.fit(X_train, y_train.values.ravel())
 # print(grid_search.best_estimator_.get_params())
-y_pred = knn_clf.predict(X_test.values)
-print(classification_report(y_test.values.ravel(), y_pred))
+y_pred = knn_clf.predict(X_test)
+print(classification_report(y_test.ravel(), y_pred))
+# print(shift_image(some_digit, (1, 1)).shape)
+# print(show_image(some_digit, y.values[0]))
